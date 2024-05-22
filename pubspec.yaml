@@ -23,6 +23,9 @@ dependencies:
 
 dependency_overrides:
 
+  shared_database:
+    path: ../shared_database
+
   device_info_fetcher:
     git: https://github.com/Flutter-Apps-pty/device_info_fetcher
   log_db_package:

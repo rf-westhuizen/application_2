@@ -7,57 +7,89 @@ import 'package:scotch_dev_error/logging/logging.dart';
 import 'package:sqlite_postgresql_connector/sqlite_postgresql_connector.dart';
 import 'package:yaml_parser_fetcher/yaml_parser_fetcher.dart';
 import 'package:uuid/uuid.dart';
+import 'package:drift/isolate.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
+import 'package:drift/native.dart';
+import 'dart:io';
+import 'package:shared_database/shared_database.dart';
+
 
 void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  final existingSendPort = IsolateNameServer.lookupPortByName('audit_db_local_isolate');
-  if (existingSendPort != null) {
-    kDebugPrint('SendPort found in Application 2');
-    existingSendPort.send('Hello from Application 2');
-  } else {
-    kDebugPrint('SendPort not found in Application 2');
+  // Ensure that we wait a bit to give time for Application 1 to register the isolate
+  await Future.delayed(const Duration(seconds: 2));
+
+  // Look up the registered isolate's send port
+  final sendPort = IsolateNameServer.lookupPortByName('drift_isolate');
+  if (sendPort == null) {
+    throw Exception('Failed to find the Drift isolate. Ensure Application 1 is running.');
   }
 
-  // Ensure that the databases are initialized properly in separate isolates before running the app.
-  await DatabaseIsolate.createAndRegisterDriftIsolate(AuditDatabaseType.local);
-  await DatabaseIsolate.createAndRegisterDriftIsolate(AuditDatabaseType.remote);
+  final driftIsolate = DriftIsolate.fromConnectPort(sendPort);
 
-  runApp(const MyApp());
+  runApp(MyApp(driftIsolate: driftIsolate));
+
+
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  final DriftIsolate driftIsolate;
 
-  // This widget is the root of your application.
+  const MyApp({super.key, required this.driftIsolate});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: HomeScreen(driftIsolate: driftIsolate,),
     );
   }
 }
+class HomeScreen extends StatelessWidget {
+  final DriftIsolate driftIsolate;
+
+  HomeScreen({required this.driftIsolate});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('Application 2')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                final connection = await driftIsolate.connect();
+                final db = SharedDatabase(connection);
+                for (var i = 0; i < 100; i++) {
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  final userId = await db.into(db.userTable).insert(UserTableCompanion.insert(name: 'User from App 2'));
+                  print('Inserted user with id: $userId');
+                }
+              },
+              child: Text('Insert Users from App 2'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final connection = await driftIsolate.connect();
+                final db = SharedDatabase(connection);
+                final users = await db.select(db.userTable).get();
+                for (var user in users) {
+                  print('User: ${user.id}, ${user.name}');
+                }
+              },
+              child: Text('Fetch Users from App 2'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
