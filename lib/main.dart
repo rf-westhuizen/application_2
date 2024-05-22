@@ -19,29 +19,28 @@ void main() async {
 
   WidgetsFlutterBinding.ensureInitialized();
 
-  final db = await SharedDatabase.getInstance();
+  // Initialize the SharedDatabase
+  await SharedDatabase.initialize();
 
-  runApp(MyApp(db: db));
+  runApp(MyApp());
 
 
 }
 
 class MyApp extends StatelessWidget {
-  final SharedDatabase db;
 
-  const MyApp({super.key, required this.db});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: HomeScreen(db: db),
+    return const MaterialApp(
+      home: HomeScreen(),
     );
   }
 }
 class HomeScreen extends StatelessWidget {
-  final SharedDatabase db;
 
-  const HomeScreen({super.key, required this.db});
+  const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +54,7 @@ class HomeScreen extends StatelessWidget {
               onPressed: () async {
                 for (var i = 0; i < 25; i++) {
                   await Future.delayed(const Duration(milliseconds: 200));
-                  final userId = await db.into(db.userTable).insert(UserTableCompanion.insert(name: 'User from App 2'));
+                  final userId = await SharedDatabase.local().into(SharedDatabase.local().userTable).insert(UserTableCompanion.insert(name: 'User from App 2'));
                   print('Inserted user with id: $userId');
                 }
               },
@@ -64,7 +63,7 @@ class HomeScreen extends StatelessWidget {
             SizedBox.fromSize(size: const Size(0, 20)),
             ElevatedButton(
               onPressed: () async {
-                final users = await db.select(db.userTable).get();
+                final users = await SharedDatabase.local().select(SharedDatabase.local().userTable).get();
                 for (var user in users) {
                   print('User: ${user.id}, ${user.name}');
                 }
