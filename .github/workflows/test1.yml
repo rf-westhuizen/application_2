@@ -1,6 +1,6 @@
 # This is a basic workflow that is manually triggered
 
-name: Automated issue to sprint workflow
+name: Automated issue to github projects
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
