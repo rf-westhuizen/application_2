@@ -21,6 +21,6 @@ jobs:
         uses: actions-ecosystem/action-add-issue-to-project@v1
         with:
           project-url: ${{ secrets.PROJECT_URL }}
-          column-name: 'To do'
+          column-name: 'Todo'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
