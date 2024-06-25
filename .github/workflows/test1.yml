@@ -16,9 +16,11 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Runs a single command using the runners shell
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
       - name: Add issue to project
-        uses: actions-ecosystem/action-add-issue-to-project@v1
+        uses: alex-page/github-project-automation-plus@v0.4.0
         with:
           project-url: ${{ secrets.PROJECT_URL }}
           column-name: 'Todo'
