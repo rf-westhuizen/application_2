@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:audit_db_package/audit_db_package.dart';
 import 'package:device_info_fetcher/device_info_fetcher.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:scotch_dev_error/logging/logging.dart';
 import 'package:sqlite_postgresql_connector/sqlite_postgresql_connector.dart';
 import 'package:yaml_parser_fetcher/yaml_parser_fetcher.dart';
