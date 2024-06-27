@@ -15,18 +15,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Clone repository
         uses: actions/checkout@v2
 
-      - name: Set up Dart
-        uses: dart-lang/setup-dart@v1
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
         with:
-          sdk: stable
+          channel: 'stable'
+      - run: flutter --version
 
       - name: Install dependencies
-        run: dart pub get
+        run: flutter pub get
 
       - name: Run tests
-        run: dart test test/unit_tests/
-
+        run: flutter test test/unit_tests/
 
