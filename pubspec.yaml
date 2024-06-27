@@ -18,7 +18,7 @@ dependencies:
   scotch_dev_error:
   sqlite_postgresql_connector:
   yaml_parser_fetcher:
-  audit_db_package:
+#  audit_db_package:
   cupertino_icons: ^1.0.6
 
 dependency_overrides:
@@ -40,8 +40,8 @@ dependency_overrides:
     git: https://github.com/Flutter-Apps-pty/sqlite_postgresql_connector.git
   yaml_parser_fetcher:
     git: https://github.com/Flutter-Apps-pty/yaml_parser_fetcher
-  audit_db:
-    git: https://github.com/Flutter-Apps-pty/audit_db.git
+#  audit_db:
+#    git: https://github.com/Flutter-Apps-pty/audit_db.git
 
 dev_dependencies:
   flutter_test:
